@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html><head><meta charset="UTF-8"><title>Main</title><script type="text/javascript" src="elm-runtime.js"></script><script type="text/javascript">Elm.Main = Elm.Main || {};
+<html><head><meta charset="UTF-8"><title>Main</title><script type="text/javascript" src="assets/elm-runtime-updated.js"></script><script type="text/javascript">Elm.Main = Elm.Main || {};
 Elm.Main.make = function (_elm) {
    "use strict";
    _elm.Main = _elm.Main || {};
@@ -16,12 +16,10 @@ Elm.Main.make = function (_elm) {
    $Render = Elm.Render.make(_elm),
    $State = Elm.State.make(_elm),
    $Update = Elm.Update.make(_elm);
-   var main = A2($Playground.playWithRate,
-   60,
-   {_: {}
-   ,initialState: $State.initialState
-   ,render: $Render.render
-   ,update: $Update.update});
+   var main = $Playground.play({_: {}
+                               ,initialState: $State.initialState
+                               ,render: $Render.render
+                               ,update: $Update.update});
    _elm.Main.values = {_op: _op
                       ,main: main};
    return _elm.Main.values;
@@ -78,10 +76,10 @@ Elm.Update.make = function (_elm) {
                            ,_0: _v0._0
                            ,_1: _v0._1};}
                  _E.Case($moduleName,
-                 "between lines 114 and 120");
+                 "between lines 116 and 122");
               }();}
          _E.Case($moduleName,
-         "between lines 114 and 120");
+         "between lines 116 and 122");
       }();
    });
    var cleanObjects = cleanObjects$({ctor: "_Tuple2"
@@ -115,6 +113,9 @@ Elm.Update.make = function (_elm) {
          newSFX$$$ = $._1;
          var gameover$ = _U.cmp(player$.traits.lives,
          1) < 0;
+         var $ = cleanObjects(state.powerups),
+         powerups$ = $._0,
+         powerupSFX = $._1;
          var $ = cleanObjects(state.enemies),
          objs = $._0,
          newSFX$ = $._1;
@@ -123,16 +124,18 @@ Elm.Update.make = function (_elm) {
          newSFX = $._1;
          var sfxs$ = A2($List.filter,
          cleanSFX,
+         _L.append(powerupSFX,
          _L.append(newSFX$$$,
          _L.append(newSFX,
          _L.append(newSFX$,
-         state.sfxs))));
+         state.sfxs)))));
          return _U.replace([["projectiles"
                             ,pps]
                            ,["enemies",objs]
                            ,["sfxs",sfxs$]
                            ,["player",player$]
-                           ,["gameover",gameover$]],
+                           ,["gameover",gameover$]
+                           ,["powerups",powerups$]],
          state);
       }();
    };
@@ -382,25 +385,25 @@ Elm.Render.make = function (_elm) {
    };
    var render = F2(function (rw,
    state) {
-      return _L.fromArray([background(state.time)
-                          ,renderObject(state.player)
-                          ,$Graphics$Collage.group(A2($List.map,
-                          renderObject,
-                          state.projectiles))
-                          ,$Graphics$Collage.group(A2($List.map,
-                          renderObject,
-                          state.enemies))
-                          ,$Graphics$Collage.group(A2($List.map,
-                          renderObject,
-                          state.powerups))
-                          ,$Graphics$Collage.group(A2($List.map,
-                          $SFX.render,
-                          state.sfxs))
-                          ,$Graphics$Collage.group(ui(rw))
-                          ,$Graphics$Collage.group(menu(state))
-                          ,$Graphics$Collage.group(paused(state))
-                          ,$Graphics$Collage.group(gameover(state))
-                          ,$Graphics$Collage.group(livesRemaining(state))]);
+      return _L.append(_L.fromArray([background(state.time)]),
+      _L.append(A2($List.map,
+      $SFX.render,
+      state.sfxs),
+      _L.append(_L.fromArray([renderObject(state.player)]),
+      _L.append(A2($List.map,
+      renderObject,
+      state.projectiles),
+      _L.append(A2($List.map,
+      renderObject,
+      state.enemies),
+      _L.append(A2($List.map,
+      renderObject,
+      state.powerups),
+      _L.append(livesRemaining(state),
+      _L.append(ui(rw),
+      _L.append(menu(state),
+      _L.append(paused(state),
+      gameover(state)))))))))));
    });
    _elm.Render.values = {_op: _op
                         ,render: render
@@ -485,7 +488,7 @@ Elm.Physics.make = function (_elm) {
                    ,_1: acc
                    ,_2: _L.fromArray([])};}
          _E.Case($moduleName,
-         "between lines 100 and 114");
+         "between lines 108 and 122");
       }();
    });
    var checkHitEnemy = checkHitEnemy$(_L.fromArray([]));
@@ -535,7 +538,7 @@ Elm.Physics.make = function (_elm) {
                    ,_1: $List.reverse(es)
                    ,_2: ps};}
          _E.Case($moduleName,
-         "between lines 80 and 93");
+         "between lines 88 and 101");
       }();
    });
    var checkHits = A2(checkHits$,
@@ -562,7 +565,7 @@ Elm.Physics.make = function (_elm) {
               es._1);
             case "[]": return p;}
          _E.Case($moduleName,
-         "between lines 62 and 73");
+         "between lines 70 and 81");
       }();
    });
    var checkPlayerPowerUp$ = F3(function (ps$,
@@ -580,6 +583,12 @@ Elm.Physics.make = function (_elm) {
               A2($List._op["::"],ps._0,ps$),
               p,
               ps._1) : function () {
+                 var powerup_traits = ps._0.traits;
+                 var powerup$ = _U.replace([["traits"
+                                            ,_U.replace([["destroyed"
+                                                         ,true]],
+                                            powerup_traits)]],
+                 ps._0);
                  var traits = p.traits;
                  var p$ = _U.replace([["traits"
                                       ,_U.replace([["fire"
@@ -588,14 +597,16 @@ Elm.Physics.make = function (_elm) {
                  p);
                  return {ctor: "_Tuple2"
                         ,_0: p$
-                        ,_1: _L.append(ps$,ps._1)};
+                        ,_1: _L.append(ps$,
+                        _L.append(_L.fromArray([powerup$]),
+                        ps._1))};
               }();
             case "[]":
             return {ctor: "_Tuple2"
                    ,_0: p
                    ,_1: $List.reverse(ps$)};}
          _E.Case($moduleName,
-         "between lines 48 and 58");
+         "between lines 48 and 66");
       }();
    });
    var checkPlayerPowerUp = checkPlayerPowerUp$(_L.fromArray([]));
@@ -1629,6 +1640,7 @@ Elm.Internal.make = function (_elm) {
    $Keyboard$Keys = Elm.Keyboard.Keys.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
+   $Monitor = Elm.Monitor.make(_elm),
    $Mouse = Elm.Mouse.make(_elm),
    $Playground$Input = Elm.Playground.Input.make(_elm),
    $Set = Elm.Set.make(_elm),
@@ -1651,11 +1663,11 @@ Elm.Internal.make = function (_elm) {
                           case "Nothing":
                           return A2(helper,xs._1,acc);}
                        _E.Case($moduleName,
-                       "between lines 106 and 108");
+                       "between lines 107 and 109");
                     }();
                   case "[]": return acc;}
                _E.Case($moduleName,
-               "between lines 104 and 108");
+               "between lines 105 and 109");
             }();
          });
          return A2(helper,
@@ -1834,12 +1846,12 @@ Elm.Internal.make = function (_elm) {
               $Playground$Input.Passive(t),
               keys);}
          _E.Case($moduleName,
-         "between lines 45 and 47");
+         "between lines 46 and 48");
       }();
    });
    var withRate = function (rate) {
       return function () {
-         var rate$ = $Time.fps(rate);
+         var rate$ = $Monitor.refresh;
          return A2($Signal.sampleOn,
          rate$,
          A2($Signal._op["~"],
@@ -1877,7 +1889,7 @@ Elm.Internal.make = function (_elm) {
               state,
               _v7._1);}
          _E.Case($moduleName,
-         "on line 31, column 33 to 59");
+         "on line 32, column 33 to 59");
       }();
    });
    var toRealWorld = F2(function (_v11,
@@ -1905,10 +1917,10 @@ Elm.Internal.make = function (_elm) {
                                 ,top: top};
                       }();}
                  _E.Case($moduleName,
-                 "between lines 15 and 25");
+                 "between lines 16 and 26");
               }();}
          _E.Case($moduleName,
-         "between lines 15 and 25");
+         "between lines 16 and 26");
       }();
    });
    var realworld = A2($Signal._op["~"],
@@ -2882,21 +2894,44 @@ Elm.PowerUp.make = function (_elm) {
    $Graphics$Collage = Elm.Graphics.Collage.make(_elm),
    $Missile = Elm.Missile.make(_elm),
    $Object = Elm.Object.make(_elm),
+   $SFX = Elm.SFX.make(_elm),
    $Time = Elm.Time.make(_elm),
    $Util = Elm.Util.make(_elm);
+   var destroyedSFX = function (traits) {
+      return {_: {}
+             ,duration: 200
+             ,frame: 0
+             ,pos: traits.pos
+             ,sfx: F2(function (t,f) {
+                return $Graphics$Collage.move({ctor: "_Tuple2"
+                                              ,_0: 0
+                                              ,_1: t})(A2($Graphics$Collage.scale,
+                1 / A2($Basics.max,
+                1,
+                $Basics.toFloat(f) / 2),
+                traits.form));
+             })
+             ,time: 0};
+   };
    var passive = F2(function (t,
    traits) {
-      return _U.replace([["pos"
-                         ,{_: {}
-                          ,x: traits.pos.x - 3 * t
-                          ,y: traits.pos.y}]],
-      traits);
+      return function () {
+         var destroyed$ = _U.cmp(traits.pos.x,
+         0 - ($Util.screenBounds.width / 2 + 200)) < 0;
+         return _U.replace([["pos"
+                            ,{_: {}
+                             ,x: traits.pos.x - 3 * t
+                             ,y: traits.pos.y}]
+                           ,["destroyed",destroyed$]],
+         traits);
+      }();
    });
    var powerup = function (traits) {
       return function () {
          var p = $Object.object(traits);
          return _U.replace([["passive"
-                            ,passive]],
+                            ,passive]
+                           ,["destroyedSFX",destroyedSFX]],
          p);
       }();
    };
@@ -2917,7 +2952,8 @@ Elm.PowerUp.make = function (_elm) {
                          ,AdditionalTraits: AdditionalTraits
                          ,defaultPowerUp: defaultPowerUp
                          ,powerup: powerup
-                         ,passive: passive};
+                         ,passive: passive
+                         ,destroyedSFX: destroyedSFX};
    return _elm.PowerUp.values;
 };Elm.Missile = Elm.Missile || {};
 Elm.Missile.Standard = Elm.Missile.Standard || {};
@@ -3086,6 +3122,76 @@ Elm.Missile.make = function (_elm) {
                          ,checkDestroyed: checkDestroyed
                          ,outOfBounds: outOfBounds};
    return _elm.Missile.values;
+};
+Elm.Native.Monitor = {};
+Elm.Native.Monitor.make = function(elm) {
+
+  elm.Native = elm.Native || {};
+  elm.Native.Monitor = elm.Native.Monitor || {};
+  if (elm.Native.Monitor.values) return elm.Native.Monitor.values;
+
+  var Signal = Elm.Signal.make(elm);
+  var NS = Elm.Native.Signal.make(elm);
+
+  // TODO Should be elm.requestAnimationFrame, and should be shimmed if we care
+  // about IE9. Do we care about IE9?
+  var requestAnimationFrame = window.requestAnimationFrame || function () {};
+  var cancelAnimationFrame = window.cancelAnimationFrame || function () {};
+
+  function refreshWhen(isOn) {
+    var prev = 0, curr = prev, diff = 0, wasOn = true;
+    var ticker = NS.input(diff);
+    function tick(zero) {
+      return function(curr) {
+        diff = zero ? 0 : curr - prev;
+        if (prev > curr) {
+          diff = 0;
+        }
+        prev = curr;
+        elm.notify(ticker.id, diff);
+      };
+    }
+    var rafID = 0;
+    function f(isOn, t) {
+      if (isOn) {
+        rafID = requestAnimationFrame(tick(!wasOn && isOn));
+      } else if (wasOn) {
+        cancelAnimationFrame(rafID);
+      }
+      wasOn = isOn;
+      return t;
+    }
+    return A3( Signal.lift2, F2(f), isOn, ticker );
+  }
+
+  return elm.Native.Monitor.values = {
+    refreshWhen : refreshWhen
+  };
+
+};
+
+Elm.Monitor = Elm.Monitor || {};
+Elm.Monitor.make = function (_elm) {
+   "use strict";
+   _elm.Monitor = _elm.Monitor || {};
+   if (_elm.Monitor.values)
+   return _elm.Monitor.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
+   _E = _N.Error.make(_elm),
+   $moduleName = "Monitor",
+   $Native$Monitor = Elm.Native.Monitor.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $Time = Elm.Time.make(_elm);
+   var refreshWhen = $Native$Monitor.refreshWhen;
+   var refresh = refreshWhen($Signal.constant(true));
+   _elm.Monitor.values = {_op: _op
+                         ,refreshWhen: refreshWhen
+                         ,refresh: refresh};
+   return _elm.Monitor.values;
 };Elm.Object = Elm.Object || {};
 Elm.Object.make = function (_elm) {
    "use strict";
